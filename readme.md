@@ -42,12 +42,12 @@ CTFer可以选择输出到文件或打印到终端上，可以选择是输出得
 
 - 模数分解
   - 在线分解N
-  - p&q不当分解N
+  - p&q不当分解N（TODO，可以用自行使用yafu分解）
   - 模不互素
   - 共模攻击
 
 - 公钥指数攻击
-  - 小公钥指数攻击¶
+  - 小公钥指数攻击
   - Rabin 算法
 
 - 私钥d攻击
@@ -63,13 +63,15 @@ CTFer可以选择输出到文件或打印到终端上，可以选择是输出得
   - Factoring with High Bits Known
   - Boneh and Durfee attack
 
-# 参考链接
+# Reference
 
 - [ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)
 - [RSA-and-LLL-attacks](https://github.com/mimoo/RSA-and-LLL-attacks)
 - [rsa-wiener-attack](https://github.com/pablocelayes/rsa-wiener-attack)
 - [rsatool](https://github.com/ius/rsatool)
+- [jarvisoj](https://www.jarvisoj.com/)
 
-# 欢迎issues
+
+# Welcome issues
 
 如果你有新的且常见的RSA解题思路，欢迎在issues中指出，我看到后会集成进去
