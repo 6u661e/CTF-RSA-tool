@@ -6,7 +6,7 @@ import factor_N
 def solve(N, c, p=None, q=None):
     if not p and not q:
         factor = factor_N.solve(N)
-        if factor and len(factor) is 2:
+        if factor:
             p = factor[0]
             q = factor[1]
         else:

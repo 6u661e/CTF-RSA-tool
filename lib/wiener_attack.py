@@ -115,7 +115,6 @@ def solve(e, n):
             if(discr >= 0):
                 t = is_perfect_square(discr)
                 if t != -1 and (s + t) % 2 == 0:
-                    print("Hacked!")
                     return d
 
 

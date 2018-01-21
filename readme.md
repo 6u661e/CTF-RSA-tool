@@ -4,6 +4,8 @@
 
 **CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **常规题型**
 
+![一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
+
 # Requirements
 
 > TODO
@@ -42,7 +44,7 @@ CTFer可以选择输出到文件或打印到终端上，可以选择是输出得
 
 - 模数分解
   - 在线分解N
-  - p&q不当分解N
+  - 费马分解（p&q相近时）
   - 模不互素
   - 共模攻击
 
@@ -70,8 +72,9 @@ CTFer可以选择输出到文件或打印到终端上，可以选择是输出得
 - [rsa-wiener-attack](https://github.com/pablocelayes/rsa-wiener-attack)
 - [rsatool](https://github.com/ius/rsatool)
 - [jarvisoj](https://www.jarvisoj.com/)
+- [RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)
 
 
 # Welcome issues
 
-如果你有新的且常见的RSA解题思路，欢迎在issues中指出，我看到后会集成进去
+如果你有新的RSA解题思路，欢迎在issues中提出，我看到后会集成进去
