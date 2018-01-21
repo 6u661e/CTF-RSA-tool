@@ -4,7 +4,7 @@
 
 **CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **常规题型**
 
-![一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
+[一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
 
 # Requirements
 
