@@ -5,6 +5,7 @@ import libnum
 
 def solve(N, e, c):
     print '----------start attck small e----------'
+    print 'script runs in single thread.'
     print 'if there was no result after a long time.'
     print 'press ctrl+c to stop, and try other ways.'
     print '------------------------------------'
