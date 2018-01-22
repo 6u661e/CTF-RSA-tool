@@ -1,9 +1,117 @@
 # coding:utf-8
-# 一些函数
+from Crypto.PublicKey import RSA
 import gmpy2
 import libnum
 import fractions
 import random
+import logging
+import factor_N
+import rabin
+import small_e
+
+logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+
+class RSAAttack(object):
+    def __init__(self, args):
+        # 如果提供了pem文件，则使用pem文件
+        self.args = args
+        if args.verbose:
+            log.setLevel(logging.DEBUG)
+        self.p = args.p or None
+        self.q = args.q or None
+        self.d = args.d or None
+        self.sageworks = args.sageworks
+        # 是否需要解密密文
+        if self.args.decrypt:
+            with open(self.args.decrypt, 'r') as f:
+                self.c = f.read().encode('hex')
+                self.c = int(self.c, 16)
+        elif self.args.decrypt_int:
+            self.c = self.args.decrypt_int
+
+    def attck(self):
+
+        # 先检查有没有特殊的参数，是否需要执行特殊的攻击方法
+
+        # 模不互素
+        if self.args.n1 and self.args.n2 and self.args.e and self.args.c1:
+            gcd_n1_n2_is_not_1(self.args.n1, self.args.n2,
+                               self.args.e, self.args.c1)
+            return
+        # 共模攻击
+        if self.args.N and self.args.e1 and self.args.e2 and self.args.c1 and self.args.c2:
+            one_n_2_e(self.args.N, self.args.e1, self.args.e2,
+                      self.args.c1, self.args.c2)
+            return
+
+        # 非上面那些需要特殊参数的特殊攻击
+
+        # 先得到N与e，没有的话抛出异常
+        try:
+            if self.args.key:
+                key = open(self.args.key, 'r').read()
+                pub = RSA.importKey(key)
+                self.n = pub.n
+                self.e = pub.e
+            else:
+                self.n = self.args.N
+                self.e = self.args.e
+        except Exception:
+            log.exception('please input right --key or -N and -e')
+
+        # 判断是否为小公钥指数攻击
+        if self.args.e > 2 and self.args.e < 8:
+            if not self.c:
+                log.error('small e: please offer cipher')
+                return
+            small_e.solve(self.n, self.e, self.c)
+            return
+
+        # 如果提供了d
+        if not self.d:
+            # 分解大整数n
+            factors = factor_N.solve(self.n, self.sageworks)
+
+            # 判断是否为RABIN算法
+            if self.args.e is 2:
+                if not self.c:
+                    log.error('rabin: please offer cipher')
+                    return
+                if factors:
+                    self.p, self.q = factors
+                    rabin.solve(self.n, self.c, self.p, self.q)
+                elif self.p and self.q:
+                    rabin.solve(self.n, self.c, self.p, self.q)
+                else:
+                    log.error('rabin: can not factor N, please offer p and q')
+                return
+
+            # 下面就是通过p和q得到d再去解密的常规题型了
+
+            if factors:
+                self.p, self.q = factors
+
+            # 分解得到p q，或用户输入了p和q，计算d
+            if self.p and self.q:
+                self.d = libnum.invmod(self.e, (self.p - 1) * (self.q - 1))
+            else:
+                log.error('can not factor N, please offer p and q or d')
+                return
+
+        # --private 是否需要打印私钥
+        if self.args.private:
+            log.info('private key:\n' + RSA.construct((self.n,
+                                                       self.e, self.d, self.p, self.q)).exportKey())
+
+        # 不需要解密，直接返回
+        if not self.c:
+            return
+        self.plain = pow(self.c, self.d, self.n)
+        # 打印解密出来的明文
+        log.info(libnum.n2s(self.plain))
 
 
 def nde_2_pq(n, d, e):
@@ -46,7 +154,7 @@ def gcd_n1_n2_is_not_1(n1, n2, e, c1):
     plain = hex(plain)[2:]
     if len(plain) % 2 != 0:
         plain = '0' + plain
-    print plain.decode('hex')
+    log.info(plain.decode('hex'))
 
 
 # 共模攻击: 需要（n1，e1，c1）及（n2，e2, c2），且n1 == n2 and gcd(e1,e2) == 1。
@@ -59,7 +167,7 @@ def one_n_2_e(N, e1, e2, c1, c2):
         t = -t
         c2 = gmpy2.invert(c2, N)
     plain = gmpy2.powmod(c1, s, N) * gmpy2.powmod(c2, t, N) % N
-    print libnum.n2s(plain)
+    log.info(libnum.n2s(plain))
 
 
 if __name__ == '__main__':

@@ -1,19 +1,8 @@
 # coding=utf-8
 import libnum
-import factor_N
 
 
-def solve(N, c, p=None, q=None):
-    if not p and not q:
-        factor = factor_N.solve(N)
-        if factor:
-            p = factor[0]
-            q = factor[1]
-        else:
-            print '----------rabin attck fail----------'
-            print 'please offer p and q'
-            print '------------------------------------'
-            return
+def solve(N, c, p, q):
     inv_p = libnum.invmod(p, q)
     inv_q = libnum.invmod(q, p)
 
@@ -39,5 +28,4 @@ if __name__ == '__main__':
     e = 2
     m = 'this is a test'
     c = pow(libnum.s2n(m), e, N)
-    solve(N, c)
-    solve(N, c, p=p, q=q)
+    solve(N, c, p, q)
