@@ -50,6 +50,8 @@ if __name__ == "__main__":
                         help='used in Known High Bits Message Attack')
     parser.add_argument('--HighBitsOfFactor', type=long,
                         help='used in Factoring with High Bits Known')
+    parser.add_argument('--ecmdigits', type=int,
+                        help='Optionally an estimate as to how long one of the primes is for ECM method', default=None)
     parser.add_argument('--n1', type=long, help='used in some special methods')
     parser.add_argument('--n2', type=long, help='used in some special methods')
     parser.add_argument('--n3', type=long, help='used in some special methods')

@@ -4,11 +4,10 @@ from Crypto.PublicKey import _slowmath
 import gmpy2
 import libnum
 import logging
-import factor_N
-
 logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
 log = logging.getLogger()
 log.setLevel(logging.INFO)
+import factor_N
 
 
 class RSAAttack(object):
@@ -24,19 +23,20 @@ class RSAAttack(object):
         # 是否需要解密密文
         if self.args.decrypt:
             with open(self.args.decrypt, 'r') as f:
-                self.c = f.read().encode('hex')
-                self.c = int(self.c, 16)
+                self.c = libnum.s2n(f.read().strip())
         elif self.args.decrypt_int:
             self.c = self.args.decrypt_int
+        else:
+            self.c = None
 
     def attack(self):
 
         # 先检查有没有特殊的参数，是否需要执行特殊的攻击方法
 
         # 模不互素
-        if self.args.n1 and self.args.n2 and self.args.e and self.args.c1:
+        if self.args.n1 and self.args.n2 and self.args.e and self.c:
             gcd_n1_n2_is_not_1(self.args.n1, self.args.n2,
-                               self.args.e, self.args.c1)
+                               self.args.e, self.c)
             return
         # 共模攻击
         if self.args.N and self.args.e1 and self.args.e2 and self.args.c1 and self.args.c2:
@@ -61,17 +61,14 @@ class RSAAttack(object):
             return
 
         # 判断是否为小公钥指数攻击
-        if self.args.e > 2 and self.args.e <= 11:
-            if not self.c:
-                log.error('please offer the cipher')
+        if self.e > 2 and self.e <= 11 and self.c is not None:
+                hastads(self.n, self.e, self.c)
                 return
-            hastads(self.n, self.e, self.c)
-            return
 
         # 如果没有提供d
         if not self.d:
             # 分解大整数n
-            factors = factor_N.solve(self.n, self.e, self.sageworks)
+            factors = factor_N.solve(self.n, self.e, self.c, self.sageworks, self.args.ecmdigits)
             if factors:
                 self.p, self.q = factors
 
@@ -95,8 +92,8 @@ class RSAAttack(object):
 
         # --private 是否需要打印私钥
         if self.args.private:
-            log.info('private key:\n' + RSA.construct((self.n,
-                                                       self.e, self.d, self.p, self.q)).exportKey())
+            log.info('private key:\n' + RSA.construct((long(self.n), long(self.e),
+                                                       long(self.d), long(self.p), long(self.q))).exportKey())
 
         # 不需要解密，直接返回
         if not self.c:
@@ -159,7 +156,7 @@ def rabin(N, c, p, q):
 # Hastad attack for low public exponent, this has found success for e = 3, and e = 5 previously
 def hastads(N, e, c):
     log.info(
-        'If there was no result after a long time. Press ctrl+c to stop, and try other ways.')
+        'start Hastad attack. If there was no result after a long time. Press ctrl+c to stop, and try other ways.')
     n = 0
     while True:
         if gmpy2.iroot(c + n * N, e)[1]:
@@ -167,6 +164,16 @@ def hastads(N, e, c):
                      libnum.n2s(gmpy2.iroot(c + n * N, e)[0]))
             return
         n += 1
+
+# def hastads(N, e, c):
+#     log.debug("Hastad's attack (Small public exponent attack)")
+#     # Hastad attack for low public exponent, this has found success for e = 3, and e = 5 previously
+#     while True:
+#         m = gmpy2.iroot(c, e)[0]
+#         if pow(m, e, N) == c:
+#             log.info('Here are your plain text: \n' + libnum.n2s(m))
+#             break
+#         c += N
 
 
 if __name__ == '__main__':
