@@ -1,13 +1,10 @@
 # coding:utf-8
 from Crypto.PublicKey import RSA
+from Crypto.PublicKey import _slowmath
 import gmpy2
 import libnum
-import fractions
-import random
 import logging
 import factor_N
-import rabin
-import small_e
 
 logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
 log = logging.getLogger()
@@ -32,7 +29,7 @@ class RSAAttack(object):
         elif self.args.decrypt_int:
             self.c = self.args.decrypt_int
 
-    def attck(self):
+    def attack(self):
 
         # 先检查有没有特殊的参数，是否需要执行特殊的攻击方法
 
@@ -43,8 +40,8 @@ class RSAAttack(object):
             return
         # 共模攻击
         if self.args.N and self.args.e1 and self.args.e2 and self.args.c1 and self.args.c2:
-            one_n_2_e(self.args.N, self.args.e1, self.args.e2,
-                      self.args.c1, self.args.c2)
+            one_n_2_e(self.args.N, self.args.e1, self.args.e2, libnum.s2n(
+                self.args.c1.decode('base64')), libnum.s2n(self.args.c2.decode('base64')))
             return
 
         # 非上面那些需要特殊参数的特殊攻击
@@ -60,39 +57,34 @@ class RSAAttack(object):
                 self.n = self.args.N
                 self.e = self.args.e
         except Exception:
-            log.exception('please input right --key or -N and -e')
-
-        # 判断是否为小公钥指数攻击
-        if self.args.e > 2 and self.args.e < 8:
-            if not self.c:
-                log.error('small e: please offer cipher')
-                return
-            small_e.solve(self.n, self.e, self.c)
+            log.error('please input right --key or -N and -e')
             return
 
-        # 如果提供了d
+        # 判断是否为小公钥指数攻击
+        if self.args.e > 2 and self.args.e <= 11:
+            if not self.c:
+                log.error('please offer the cipher')
+                return
+            hastads(self.n, self.e, self.c)
+            return
+
+        # 如果没有提供d
         if not self.d:
             # 分解大整数n
-            factors = factor_N.solve(self.n, self.sageworks)
+            factors = factor_N.solve(self.n, self.e, self.sageworks)
+            if factors:
+                self.p, self.q = factors
 
             # 判断是否为RABIN算法
             if self.args.e is 2:
                 if not self.c:
                     log.error('rabin: please offer cipher')
                     return
-                if factors:
-                    self.p, self.q = factors
-                    rabin.solve(self.n, self.c, self.p, self.q)
-                elif self.p and self.q:
-                    rabin.solve(self.n, self.c, self.p, self.q)
+                if self.p and self.q:
+                    rabin(self.n, self.c, self.p, self.q)
                 else:
                     log.error('rabin: can not factor N, please offer p and q')
                 return
-
-            # 下面就是通过p和q得到d再去解密的常规题型了
-
-            if factors:
-                self.p, self.q = factors
 
             # 分解得到p q，或用户输入了p和q，计算d
             if self.p and self.q:
@@ -113,36 +105,10 @@ class RSAAttack(object):
         # 打印解密出来的明文
         log.info(libnum.n2s(self.plain))
 
-
-def nde_2_pq(n, d, e):
-    t = (e * d - 1)
-    s = 0
-    while True:
-        quotient, remainder = divmod(t, 2)
-
-        if remainder != 0:
-            break
-
-        s += 1
-        t = quotient
-
-    found = False
-
-    while not found:
-        i = 1
-        a = random.randint(1, n - 1)
-
-        while i <= s and not found:
-            c1 = pow(a, pow(2, i - 1, n) * t, n)
-            c2 = pow(a, pow(2, i, n) * t, n)
-
-            found = c1 != 1 and c1 != (-1 % n) and c2 == 1
-
-            i += 1
-
-    p = fractions.gcd(c1 - 1, n)
-    q = n // p
-    return p, q
+    def nde_2_pq(self, n, d, e):
+        tmp_priv = _slowmath.rsa_construct(long(n), long(e), d=long(d))
+        self.p = tmp_priv.p
+        self.q = tmp_priv.q
 
 
 # 模不互素: 需要（n1，e1，c1）及（n2，e2），且e1 == e2。解密c1
@@ -154,7 +120,7 @@ def gcd_n1_n2_is_not_1(n1, n2, e, c1):
     plain = hex(plain)[2:]
     if len(plain) % 2 != 0:
         plain = '0' + plain
-    log.info(plain.decode('hex'))
+    log.info('Here are your plain text: \n' + plain.decode('hex'))
 
 
 # 共模攻击: 需要（n1，e1，c1）及（n2，e2, c2），且n1 == n2 and gcd(e1,e2) == 1。
@@ -167,7 +133,40 @@ def one_n_2_e(N, e1, e2, c1, c2):
         t = -t
         c2 = gmpy2.invert(c2, N)
     plain = gmpy2.powmod(c1, s, N) * gmpy2.powmod(c2, t, N) % N
-    log.info(libnum.n2s(plain))
+    log.info('Here are your plain text: \n' + libnum.n2s(plain))
+
+
+# e=2，rabin算法
+def rabin(N, c, p, q):
+    inv_p = libnum.invmod(p, q)
+    inv_q = libnum.invmod(q, p)
+
+    mp = pow(c, (p + 1) / 4, p)
+    mq = pow(c, (q + 1) / 4, q)
+
+    a = (inv_p * p * mq + inv_q * q * mp) % N
+    b = N - int(a)
+    c = (inv_p * p * mq - inv_q * q * mp) % N
+    d = N - int(c)
+
+    for i in (a, b, c, d):
+        s = '%x' % i
+        if len(s) % 2 != 0:
+            s = '0' + s
+        log.info('Here are your plain text: \n' + s.decode('hex'))
+
+
+# Hastad attack for low public exponent, this has found success for e = 3, and e = 5 previously
+def hastads(N, e, c):
+    log.info(
+        'If there was no result after a long time. Press ctrl+c to stop, and try other ways.')
+    n = 0
+    while True:
+        if gmpy2.iroot(c + n * N, e)[1]:
+            log.info('Here are your plain text: \n' +
+                     libnum.n2s(gmpy2.iroot(c + n * N, e)[0]))
+            return
+        n += 1
 
 
 if __name__ == '__main__':

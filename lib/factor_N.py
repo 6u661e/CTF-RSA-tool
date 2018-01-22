@@ -1,13 +1,18 @@
 # coding:utf-8
 import requests
 from bs4 import BeautifulSoup
+import subprocess
+import libnum
+import wiener_attack
 
 
-def solve(N):
-    return factordb(N)
+def solve(N, e, sageworks):
+    if sageworks:
+        return factordb(N) or p_q_2_close(N) or wiener_attack.solve(N, e) or smallq(N) or boneh_durfee(N, e) or None
+    else:
+        return factordb(N) or p_q_2_close(N) or wiener_attack.solve(N, e) or smallq(N) or None
 
 
-# factordb.com
 def factordb(N):
     res = requests.get('http://factordb.com/index.php?query=' + str(N))
     soup = BeautifulSoup(res.text, 'lxml')
@@ -21,6 +26,33 @@ def factordb(N):
         return factor
     else:
         return
+
+
+def boneh_durfee(N, e):
+    # use boneh durfee method, should return a d value, else returns 0
+    # only works if the sageworks() function returned True
+    # many of these problems will be solved by the wiener attack module but perhaps some will fall through to here
+    # TODO: get an example public key solvable by boneh_durfee but not wiener
+    sageresult = int(subprocess.check_output(
+        ['sage', 'lib/boneh_durfee.sage', str(N), str(e)]))
+    if sageresult > 0:
+        # use PyCrypto _slowmath rsa_construct to resolve p and q from d
+        from Crypto.PublicKey import _slowmath
+        tmp_priv = _slowmath.rsa_construct(
+            long(N), long(e), d=long(sageresult))
+        p = tmp_priv.p
+        q = tmp_priv.q
+        # d = sageresult
+        return p, q
+
+
+def smallq(N):
+    # Try an attack where q < 100,000, from BKPCTF2016 - sourcekris
+    for prime in libnum.primes(100000):
+        if N % prime == 0:
+            q = prime
+            p = N / q
+    return p, q
 
 
 def isqrt(n):
