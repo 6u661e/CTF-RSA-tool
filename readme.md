@@ -30,6 +30,12 @@ cd CTF-RSA-tool
 python setup.py
 ```
 
+- 安装sagemath
+
+> 安装sagemath的以获得更高的成功率，建议安一个，嫌麻烦也可以不安装
+
+http://www.sagemath.org
+
 # Usage
 
 `python solve.py -h`
