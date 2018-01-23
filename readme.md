@@ -2,79 +2,165 @@
 
 # Description
 
-**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **常规题型**
+**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **基本题型**
 
 [一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
 
 # Requirements
 
-> TODO
+- requests
+- gmpy2
+- pycrypto
+- libnum
 
 # Installation
 
-> TODO
+安装libnum
+`git clone https://github.com/hellman/libnum.git && cd libnum && python setup.py`
 
-# Usage examples
+安装gmpy2，参考：（文章里面安装MPFR的地址404了，需要去官网获取最新的）
+[www.cnblogs.com/pcat/p/5746821.html](https://www.cnblogs.com/pcat/p/5746821.html)
 
-> TODO
+```
+git clone https://github.com/D001UM3/CTF-RSA-tool.git
+cd CTF-RSA-tool
+python setup.py
+```
+
+# Usage
+
+`python solve.py -h`
+
+# Examples
+
+### 只需要一组密钥的
+- Wiener's attack
+
+`python solve.py --verbose --private -i examples/wiener_attack.txt`
+
+>或者通过命令行，只要指定对应参数就行了
+
+`python solve.py  --verbose --private -N 460657813884289609896372056585544172485318117026246263899744329237492701820627219556007788200590119136173895989001382151536006853823326382892363143604314518686388786002989248800814861248595075326277099645338694977097459168530898776007293695728101976069423971696524237755227187061418202849911479124793990722597 -e 354611102441307572056572181827925899198345350228753730931089393275463916544456626894245415096107834465778409532373187125318554614722599301791528916212839368121066035541008808261534500586023652767712271625785204280964688004680328300124849680477105302519377370092578107827116821391826210972320377614967547827619`
+
+- 利用 factordb.com 分解大整数
+
+`python solve.py --verbose  -k examples/jarvis_oj_mediumRSA/pubkey.pem --decrypt examples/jarvis_oj_mediumRSA/flag.enc`
+
+- Boneh and Durfee attack
+
+> TODO: get an example public key solvable by boneh_durfee but not wiener
+
+- small q attack
+
+`python solve.py --verbose --private -k examples/small_q.pub`
+
+- 费马分解（p&q相近时）
+
+`python solve.py --verbose --private -i examples/closed_p_q.txt`
+
+- Common factor between ciphertext and modulus attack（密文与模数不互素）
+
+`python solve.py --verbose -k examples/common_factor.pub --decrypt examples/common_factor.cipher --private`
+
+- small e
+
+`python solve.py --verbose -k examples/small_exponent.pub  --decrypt examples/small_exponent.cipher`
+
+- Rabin 算法 （e == 2）
+
+`python solve.py --verbose -k examples/jarvis_oj_hardRSA/pubkey.pem --decrypt examples/jarvis_oj_hardRSA/flag.enc`
+
+- Small fractions method when p/q is close to a small fraction
+
+`python solve.py --verbose -k examples/smallfraction.pub  --private`
+
+- Known High Bits Factor Attack
+
+`python solve.py --verbose --private -i examples/KnownHighBitsFactorAttack.txt`
+
+
+### 需要多组密钥的
+
+- d泄漏攻击
+
+`python solve.py --verbose --private -i examples/d_leak.txt`
+
+- 模不互素
+
+`python solve.py --verbose --private -i examples/share_factor.txt`
+
+- 共模攻击
+
+`python solve.py --verbose --private -i examples/share_N.txt`
+
+- Basic Broadcast Attack
+
+`python solve.py --verbose --private -i examples/Basic_Broadcast_Attack.txt`
 
 # How does it work
 
-对于题目给定的一组公钥或n，e，c等变量的值，自动判断应该采用哪种攻击方法，并尝试得到私钥或者明文，从而帮助CTFer快速拿到flag
+根据题目给的参数类型，自动判断应该采用哪种攻击方法，并尝试得到私钥或者明文，从而帮助CTFer快速拿到flag或解决其中的RSA考点
 
 ### 大体思路
 
 - 判断输入
 
-首先，识别用户的输入，可以是证书*pem*文件，也可以通过命令行参数指定n，e，c等变量的值，甚至可以通过命令行指定题目所给的txt文件并自动识别里面的变量
+首先，识别用户的输入，可以是证书 *pem* 文件，也可以通过命令行参数指定`n`，`e`等变量的值，甚至可以通过命令行指定题目所给的txt文件并自动识别里面的变量（见examples）
 
 - 判断攻击方法
 
-根据取到的变量有哪些，选取可能成功的方法并采用一定的优先级逐个尝试。
+根据取到的参数类型及数量，选取可能成功的方法并采用一定的优先级逐个尝试。
 
-如：题目给了三个变量n，e，c各一个，首先判断e或n的值是否合理，如果不合理，会采用对应的算法解决；如果合理，那么会先尝试在线分解n，然后尝试 *Boneh and Durfee attack* 或 *Wiener’s Attack* 等，如果最后还是不能分解，可能就需要你自己另寻方法了
+如常见的题型：给了一个公钥和一个加密的密文，我们需要先分解大整数N，然后得到私钥再去解密。考点在于大整数分解，脚本会挨个尝试下面 **已实现的攻击方法** 中列举出的关于分解大整数的方法，直到分解成功。
 
-- 输出
+- 选择输出
 
-CTFer可以选择输出到文件或打印到终端上，可以选择是输出得到的全部内容还是输出私钥或者明文
+CTFer可以通过命令行选择是输出私钥还是输出解密后的密文，还是一起输出
 
-### 主要攻击方法
+### 已实现的攻击方法
 
-主要参考[ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)上列举出来的RSA一些方法，选取部分常见及易集成的方法
+主要参考[ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)和[RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)
 
-- 模数分解
-  - 在线分解N
+- 大整数分解
+  - 检查过去的ctf比赛中出现的素数
+  - Gimmicky Primes method
+  - Wiener's attack
+  - factordb在线分解N
+  - Small q (q < 100,000)
   - 费马分解（p&q相近时）
-  - 模不互素
-  - 共模攻击
+  - Boneh Durfee Method (d < n^0.292)
+  - Small fractions method when p/q is close to a small fraction
 
-- 公钥指数攻击
-  - 小公钥指数攻击
-  - Rabin 算法
-
-- 私钥d攻击
-  - d泄露攻击
-  - Wiener’s Attack
-
-- Coppersmith Related Attack
-  - Basic Broadcast Attack
-  - Broadcast Attack with Linear Padding
-  - Related Message Attack
-  - Coppersmith’s short-pad attack
-  - Known High Bits Message Attack
-  - Factoring with High Bits Known
-  - Boneh and Durfee attack
+- Basic Broadcast Attack
+- Known High Bits Factor Attack
+- Common factor between ciphertext and modulus attack
+- 小公钥指数攻击
+- Rabin 算法
+- 模不互素
+- 共模攻击
+- d泄露攻击
 
 # Reference
 
 - [ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)
+- [RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)
+- [jarvisoj](https://www.jarvisoj.com/)
 - [RSA-and-LLL-attacks](https://github.com/mimoo/RSA-and-LLL-attacks)
 - [rsa-wiener-attack](https://github.com/pablocelayes/rsa-wiener-attack)
 - [rsatool](https://github.com/ius/rsatool)
-- [jarvisoj](https://www.jarvisoj.com/)
-- [RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)
 
 
-# Welcome issues
+# TODO
 
-如果你有新的RSA解题思路，欢迎在issues中提出，我看到后会集成进去
+- 更多有关Coppersmith的攻击
+
+    - https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_coppersmith_attack.html
+    - http://inaz2.hatenablog.com/entries/2016/01/20
+
+- 改善RsaCtfTool中几个没加进去的方法（我觉得不太ok的暂时没加进来）
+    - https://github.com/Ganapati/RsaCtfTool
+- 寻找更多题型来丰富攻击方法
+    - google
+    - github
+    - baidu
+    - ......
