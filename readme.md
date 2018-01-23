@@ -15,11 +15,14 @@
 
 # Installation
 
-安装libnum
+- 安装libnum
 `git clone https://github.com/hellman/libnum.git && cd libnum && python setup.py`
 
-安装gmpy2，参考：（文章里面安装MPFR的地址404了，需要去官网获取最新的）
+- 安装gmpy2，参考：（文章里面安装MPFR的地址404了，需要去官网获取最新的）
+
 [www.cnblogs.com/pcat/p/5746821.html](https://www.cnblogs.com/pcat/p/5746821.html)
+
+- 克隆仓库，安装依赖
 
 ```
 git clone https://github.com/D001UM3/CTF-RSA-tool.git
@@ -33,7 +36,10 @@ python setup.py
 
 # Examples
 
+> 我这里‘组’的意思是有几个模数N或者指数e等
+
 ### 只需要一组密钥的
+
 - Wiener's attack
 
 `python solve.py --verbose --private -i examples/wiener_attack.txt`
