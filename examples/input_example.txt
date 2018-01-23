@@ -1,3 +1,9 @@
+一行一个变量，可以写做 n = *** 或者 n is *** 或者 n : ***
+识别的变量名有：n，e，d，c，p，q [用于特殊方法的：hbop（high bits of factor），pbits（bits lenth of p）]
+不用区分大小写，如: n或者N都行
+多组密钥要区分顺序，不过只需区分同变量名的顺序，如出现的顺序: n1,n2,e1,e2 和 n1,e1,n2,e2 等价
+
+
 1、有多组n，e，c:
 d_leak.txt
 share_factor.txt
@@ -8,3 +14,4 @@ Basic_Broadcast_Attack.txt
 2、只有一组n，e，c:
 wiener_attack.txt
 closed_p_q.txt
+KnownHighBitsFactorAttack.txt

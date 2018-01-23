@@ -8,8 +8,8 @@ import libnum
 split_char_dic = ['=', ':', 'is']
 
 
+# Check if sage is installed and working
 def sageworks():
-    # Check if sage is installed and working
     try:
         sageversion = subprocess.check_output(['sage', '-v'])
     except OSError:
@@ -50,9 +50,9 @@ def input_file(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='It helps CTFer to get flag quickly')
+        description='It helps CTFer to get first blood of RSA-base CTF problems')
     parser.add_argument(
-        '--private', help='Display private key if recovered', action='store_true')
+        '--private', help='Print private key if recovered', action='store_true')
     parser.add_argument(
         '--createpub', help='Take n and e and output to file specified by "-o" or just print it', action='store_true')
     parser.add_argument(
@@ -60,24 +60,25 @@ if __name__ == "__main__":
     parser.add_argument(
         '--enc2dec', help='get cipher (in decimalism) from a encrypted file')
 
-    # group1用于指定待解密的密文
+    # group1用于指定待解密的密文，可以指定密文文件，也可以指定它对应的十进制值
     group1 = parser.add_mutually_exclusive_group()
     group1.add_argument(
-        '--decrypt', help='decrypt a file, for example flag.enc', default=None)
+        '--decrypt', help='decrypt a file, usually like "flag.enc"', default=None)
     group1.add_argument(
-        '-c', '--decrypt_int', type=long, help='decrypt a long int num, such as c and cipher', default=None)
+        '-c', '--decrypt_int', type=long, help='decrypt a long int num', default=None)
     # group2用于指定一个密钥pem文件 ，或指定需要的模数值
     group2 = parser.add_mutually_exclusive_group()
     group2.add_argument(
-        '-k', '--key', help='pem file, which begins with "-----BEGIN"')
+        '-k', '--key', help='pem file, usually like ".pub" or ".pem", and it begins with "-----BEGIN"')
     group2.add_argument(
-        '-i', '--input', help='input a file with all necessary parameters (see examples/input_example)')
-    group2.add_argument('-N', type=long)
+        '-i', '--input', help='input a file with all necessary parameters (see examples/input_example.txt)')
+    group2.add_argument('-N', type=long, help='the modulus')
     parser.add_argument('-e', type=long, help='the public exponent')
     parser.add_argument('-d', type=long, help='the private exponent')
-    parser.add_argument('-p', type=long, help='factor of modulus')
-    parser.add_argument('-q', type=long, help='factor of modulus')
+    parser.add_argument('-p', type=long, help='one factor of modulus')
+    parser.add_argument('-q', type=long, help='one factor of modulus')
 
+    # TODO
     # parser.add_argument('--KHBMA', type=long,
     #                     help='use Known High Bits Message Attack, this specify the High Bits of Message', default=None)
     parser.add_argument('--KHBFA', type=long,
@@ -86,7 +87,7 @@ if __name__ == "__main__":
                         help='customize the bits lenth of factor, default is half of n`s bits lenth', default=None)
 
     parser.add_argument(
-        '--verbose', help='verbose mode', action='store_true')
+        '--verbose', help='print details', action='store_true')
     parser.add_argument(
         '-o', "--output", help='Specify the output file in --createpub mode.')
 
