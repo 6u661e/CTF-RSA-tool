@@ -3,7 +3,6 @@ import argparse
 from Crypto.PublicKey import RSA
 import subprocess
 import lib.RSAutils
-import json
 import libnum
 
 split_char_dic = ['=', ':', 'is']
@@ -36,8 +35,9 @@ def input_file(path):
             if not k.strip():
                 continue
             key = k.split(split_char)[0].strip().lower()
-            value = long(int(k.split(split_char)[1].strip()))
-            if data.has_key(key) and value != data[key]:
+            value = k.split(split_char)[1].strip()
+            value = long(int(value, 16)) if '0x' in value else long(int(value))
+            if key in data and value != data[key]:
                 if isinstance(data[key], list):
                     data[key].append(value)
                 else:
@@ -78,13 +78,13 @@ if __name__ == "__main__":
     parser.add_argument('-p', type=long, help='factor of modulus')
     parser.add_argument('-q', type=long, help='factor of modulus')
 
-    # 下面这些用于一些特殊的攻击方法中(共模攻击，模不互素，Known High Bits Message Attack，Known High Bits Factor Attack)
-    parser.add_argument('--KHBMA', type=long,
-                        help='use Known High Bits Message Attack, this specify the High Bits')
+    # parser.add_argument('--KHBMA', type=long,
+    #                     help='use Known High Bits Message Attack, this specify the High Bits of Message', default=None)
     parser.add_argument('--KHBFA', type=long,
-                        help='use Known High Bits Factor Attack, this specify the High Bits')
+                        help='use Known High Bits Factor Attack, this specify the High Bits of factor', default=None)
+    parser.add_argument('--pbits', type=long,
+                        help='customize the bits lenth of factor, default is half of n`s bits lenth', default=None)
 
-    # 一些可选参数
     parser.add_argument(
         '--verbose', help='verbose mode', action='store_true')
     parser.add_argument(

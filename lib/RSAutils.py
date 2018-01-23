@@ -4,6 +4,7 @@ from Crypto.PublicKey import _slowmath
 import gmpy2
 from functools import reduce
 import libnum
+import subprocess
 import logging
 logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
 log = logging.getLogger()
@@ -21,6 +22,9 @@ class RSAAttack(object):
         self.p = args.p or None
         self.q = args.q or None
         self.d = args.d or None
+        # high bits of factor
+        self.hbop = args.KHBFA or None
+        self.pbits = args.pbits or None
         self.sageworks = args.sageworks
         self.data = args.data or None
         # 是否需要解密密文
@@ -36,18 +40,21 @@ class RSAAttack(object):
 
         # 下面是需要多组密钥的攻击方法
         if self.args.multiple:
-            if self.data.has_key('d'):
+            if 'd' in self.data:
                 # d泄漏攻击，获得d并继续下面进行解密
-                self.d, self.p, self.q = d_leak(self.data['n'], self.data['e'][0], self.data['d'], self.data['e'][1])
+                self.d, self.p, self.q = d_leak(
+                    self.data['n'], self.data['e'][0], self.data['d'], self.data['e'][1])
                 self.e = self.data['e'][1]
             else:
                 # 模不互素
                 if isinstance(self.data['n'], list) and isinstance(self.data['e'], long) and isinstance(self.data['c'], long):
-                    share_factor(self.data['n'][0], self.data['n'][1], self.data['e'], self.data['c'])
+                    share_factor(
+                        self.data['n'][0], self.data['n'][1], self.data['e'], self.data['c'])
                     return
                 # 共模攻击
                 if isinstance(self.data['n'], long) and isinstance(self.data['e'], list) and isinstance(self.data['c'], list):
-                    share_N(self.data['n'], self.data['e'][0], self.data['e'][1], self.data['c'][0], self.data['c'][1])
+                    share_N(self.data['n'], self.data['e'][0], self.data['e']
+                            [1], self.data['c'][0], self.data['c'][1])
                     return
                 # Basic Broadcast Attack
                 if isinstance(self.data['n'], list) and isinstance(self.data['e'], long) and isinstance(self.data['c'], list):
@@ -61,10 +68,18 @@ class RSAAttack(object):
             try:
                 self.n = self.n or self.data['n']
                 self.e = self.e or self.data['e']
-                self.c = self.c or (self.data['c'] if self.data.has_key('c') else None)           
-                self.d = self.d or (self.data['d'] if self.data.has_key('d') else None) 
-                self.p = self.p or (self.data['p'] if self.data.has_key('p') else None)             
-                self.q = self.q or (self.data['q'] if self.data.has_key('q') else None) 
+                self.c = self.c or (
+                    self.data['c'] if 'c' in self.data else None)
+                self.d = self.d or (
+                    self.data['d'] if 'd' in self.data else None)
+                self.p = self.p or (
+                    self.data['p'] if 'p' in self.data else None)
+                self.q = self.q or (
+                    self.data['q'] if 'q' in self.data else None)
+                self.hbop = self.hbop or (
+                    self.data['hbop'] if 'hbop' in self.data else None)
+                self.pbits = self.pbits or (
+                    self.data['pbits'] if 'pbits' in self.data else None)
             except Exception as e:
                 log.error('please check your --input')
                 print e
@@ -88,6 +103,21 @@ class RSAAttack(object):
         if self.e > 2 and self.e <= 11 and self.c is not None:
             hastads(self.n, self.e, self.c)
             return
+
+        # 判读是否为Known High Bits Factor Attack
+        if self.hbop:
+            if not self.sageworks:
+                log.error('please install sage first')
+            if self.pbits:
+                sageresult = int(subprocess.check_output(
+                    ['sage', 'lib/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
+            else:
+                sageresult = int(subprocess.check_output(
+                    ['sage', 'lib/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop)]))
+            if sageresult > 0:
+                self.p = sageresult
+                self.q = self.n / self.p
+                self.d = libnum.invmod(self.e, (self.p - 1) * (self.q - 1))
 
         # 如果没有提供d
         if not self.d:
@@ -197,11 +227,8 @@ def hastads(N, e, c):
             return
         n += 1
 
-# import gmpy   # gmpy 是一個在 python 提供類似 GMP 的高等算術的 module，這裡用它算模反元素跟次方根
-# import json, binascii   # json 是 python 下的 json parsing 工具，binascii 則是用來做 binary 跟 ascii 之間轉換的工具
 
-
-def chinese_remainder(n, a):   # Rosetta Code 上的 CRT Solver code，就只是把中國餘數定理 code 化而已
+def chinese_remainder(n, a):
     sum = 0
     prod = reduce(lambda a, b: a * b, n)
     for n_i, a_i in zip(n, a):

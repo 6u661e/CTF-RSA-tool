@@ -28,6 +28,9 @@ python solve.py --verbose -k examples/jarvis_oj_hardRSA/pubkey.pem --decrypt exa
 # Small fractions method when p/q is close to a small fraction
 python solve.py --verbose -k examples/smallfraction.pub  --private
 
+# Known High Bits Factor Attack
+python solve.py --verbose --private -i examples/KnownHighBitsFactorAttack.txt
+
 
 # 需要多组密钥的
 # 第三届上海市大学生网络安全大赛--rrrsa d泄漏攻击 
