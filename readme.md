@@ -2,7 +2,9 @@
 
 # Description
 
-**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **基本题型**
+**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **基本题型** 。
+
+~~不懂RSA的小白说(hai)不(shi)定(yao)也(hao)能(hao)拿(xue)一(xi)血(a)。~~
 
 [一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
 
@@ -17,6 +19,7 @@
 # Installation
 
 - 安装libnum
+
 `git clone https://github.com/hellman/libnum.git && cd libnum && python setup.py`
 
 - 安装gmpy2，参考：（文章里面安装MPFR的地址404了，需要去官网获取最新的）
@@ -166,12 +169,12 @@ CTFer可以通过命令行选择是输出私钥还是输出解密后的密文，
 # TODO
 
 - 更多有关Coppersmith的攻击
-
     - https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_coppersmith_attack.html
     - http://inaz2.hatenablog.com/entries/2016/01/20
 
 - 改善RsaCtfTool中几个没加进去的方法（我觉得不太ok的暂时没加进来）
     - https://github.com/Ganapati/RsaCtfTool
+
 - 寻找更多题型来丰富攻击方法
     - google
     - github
