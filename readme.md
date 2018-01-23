@@ -12,6 +12,7 @@
 - gmpy2
 - pycrypto
 - libnum
+- sagemath(optional)
 
 # Installation
 
