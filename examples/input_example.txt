@@ -1,5 +1,10 @@
 1、有多组n，e，c:
-Basic_Broadcast_Attack.txt
+d_leak.txt
+share_factor.txt
 share_N.txt
+Basic_Broadcast_Attack.txt
+
+
 2、只有一组n，e，c:
+wiener_attack.txt
 closed_p_q.txt
