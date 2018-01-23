@@ -11,7 +11,7 @@ import signal
 log = RSAutils.log
 
 
-def solve(N, e, c, sageworks, ecmdigits):
+def solve(N, e, c, sageworks):
     if sageworks:
         return pastctfprimes(N) or noveltyprimes(N) or wiener_attack(N, e) or factordb(N) or comfact_cn(N, c) or smallq(N) or p_q_2_close(N) or boneh_durfee(N, e) or smallfraction(N) or None
     else:
@@ -94,7 +94,6 @@ def pastctfprimes(N):
     log.debug('factor N: try past ctf primes')
     primes = [long(x) for x in open('lib/pastctfprimes.txt', 'r').readlines(
     ) if not x.startswith('#') and not x.startswith('\n')]
-    log.debug("Loaded " + str(len(primes)) + " primes")
     for prime in primes:
         if N % prime == 0:
             q = prime
@@ -182,7 +181,7 @@ def fermat(n):
 
 
 # |p-q|较小
-def p_q_2_close(N, fermat_timeout=20):
+def p_q_2_close(N, fermat_timeout=10):
     # Try an attack where the primes are too close together from BKPCTF2016 - sourcekris
     # this attack module can be optional
     try:
