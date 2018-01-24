@@ -20,7 +20,7 @@
 
 - 安装libnum
 
-`git clone https://github.com/hellman/libnum.git && cd libnum && python setup.py`
+`git clone https://github.com/hellman/libnum.git && cd libnum && python setup.py install && cd ..`
 
 - 安装gmpy2，参考：（文章里面安装MPFR的地址404了，需要去官网获取最新的）
 
@@ -31,7 +31,7 @@
 ```
 git clone https://github.com/D001UM3/CTF-RSA-tool.git
 cd CTF-RSA-tool
-python setup.py
+pip install -r "requirements.txt"
 ```
 
 - 安装sagemath
