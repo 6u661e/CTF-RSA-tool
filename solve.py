@@ -95,16 +95,16 @@ if __name__ == "__main__":
 
     # if createpub mode generate public key then quit
     if args.createpub:
-        if args.n is None or args.e is None:
+        if args.N is None or args.e is None:
             raise Exception(
                 "Specify both a modulus and exponent on the command line. See --help for info.")
         if args.output:
             with open(args.output, 'w') as file:
                 file.write(RSA.construct(
-                    (args.n, args.e)).publickey().exportKey())
+                    (args.N, args.e)).publickey().exportKey())
             print 'saved in %s' % args.output
         else:
-            print RSA.construct((args.n, args.e)).publickey().exportKey()
+            print RSA.construct((args.N, args.e)).publickey().exportKey()
         quit()
 
     # if dumpkey mode dump the key components then quit

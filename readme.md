@@ -42,13 +42,31 @@ http://www.sagemath.org
 
 # Usage
 
+### 查看全部参数及帮助
+
 `python solve.py -h`
+
+### 列举几个实用的小功能（解题的例子见下面）
+
+- 输入N与e创建公钥
+
+`python solve.py  --createpub  -N your_modulus -e your_public_exponent -o public.pem`
+
+- 查看密钥文件
+
+`python solve.py --dumpkey --key examples/smallfraction.pub`
+
+- 将加密文件转为十进制（方便写入文本，配合`-i`需要）
+
+`python solve.py --enc2dec examples/jarvis_oj_hardRSA/flag.enc`
 
 # Examples
 
-> 我这里‘组’的意思是有几个模数N或者指数e等
+> 非 --input（文本文档自动识别攻击） 的情况下，请至少选择 --private（打印得到的私钥） 或 --decrypt（解密一个加密的文件） 或 --decrypt_int（解密一个十进制数） 中的一个，不然程序不会干什么事
 
 ### 只需要一组密钥的
+
+> 我这里‘组’的意思是有几个模数N或指数e等
 
 - Wiener's attack
 
