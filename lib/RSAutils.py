@@ -108,6 +108,7 @@ class RSAAttack(object):
         if self.hbop:
             if not self.sageworks:
                 log.error('please install sage first')
+                return
             if self.pbits:
                 sageresult = int(subprocess.check_output(
                     ['sage', 'lib/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
