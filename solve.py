@@ -51,46 +51,53 @@ def input_file(path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='It helps CTFer to get first blood of RSA-base CTF problems')
-    parser.add_argument(
-        '--private', help='Print private key if recovered', action='store_true')
-    parser.add_argument(
-        '--createpub', help='Take n and e and output to file specified by "-o" or just print it', action='store_true')
-    parser.add_argument(
-        '--dumpkey', help='Just dump the RSA variables from a key - n,e,d,p,q', action='store_true')
-    parser.add_argument(
-        '--enc2dec', help='get cipher (in decimalism) from a encrypted file')
 
-    # group1用于指定待解密的密文，可以指定密文文件，也可以指定它对应的十进制值
-    group1 = parser.add_mutually_exclusive_group()
+    # group1用于指定是否需要打印私钥及待解密的密文或者自动识别的文本
+    group1 = parser.add_mutually_exclusive_group(required=True)
+    # 密文可以指定密文文件，也可以指定它对应的十进制值
     group1.add_argument(
         '--decrypt', help='decrypt a file, usually like "flag.enc"', default=None)
     group1.add_argument(
         '-c', '--decrypt_int', type=long, help='decrypt a long int num', default=None)
-    # group2用于指定一个密钥pem文件 ，或指定需要的模数值
-    group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument(
-        '-k', '--key', help='pem file, usually like ".pub" or ".pem", and it begins with "-----BEGIN"')
-    group2.add_argument(
+    group1.add_argument(
+        '--private', help='Print private key if recovered', action='store_true')
+    group1.add_argument(
         '-i', '--input', help='input a file with all necessary parameters (see examples/input_example.txt)')
-    group2.add_argument('-N', type=long, help='the modulus')
-    parser.add_argument('-e', type=long, help='the public exponent')
-    parser.add_argument('-d', type=long, help='the private exponent')
-    parser.add_argument('-p', type=long, help='one factor of modulus')
-    parser.add_argument('-q', type=long, help='one factor of modulus')
+    group1.add_argument(
+        '-g', '--gadget', help='Use some gadgets to pre-process your data first', action='store_true')
 
-    # TODO
-    # parser.add_argument('--KHBMA', type=long,
-    #                     help='use Known High Bits Message Attack, this specify the High Bits of Message', default=None)
-    parser.add_argument('--KHBFA', type=long,
+    group2 = parser.add_argument_group(
+        title='some gadgets', description='Pre-process your data (with --gadget together)')
+    group2.add_argument(
+        '--createpub', help='Take N and e and output to file specified by "-o" or just print it', action='store_true')
+    group2.add_argument(
+        '-o', "--output", help='Specify the output file path in --createpub mode.')
+    group2.add_argument(
+        '--dumpkey', help='Just print the RSA variables from a key - n,e,d,p,q', action='store_true')
+    group2.add_argument(
+        '--enc2dec', help='get cipher (in decimalism) from a encrypted file')
+
+    # group3用于指定一个密钥pem文件 ，或指定需要的模数值
+    group3 = parser.add_argument_group(
+        title='the RSA variables', description='Specify the variables whatever you got')
+    group3.add_argument(
+        '-k', '--key', help='pem file, usually like ".pub" or ".pem", and it begins with "-----BEGIN"')
+    group3.add_argument('-N', type=long, help='the modulus')
+    group3.add_argument('-e', type=long, help='the public exponent')
+    group3.add_argument('-d', type=long, help='the private exponent')
+    group3.add_argument('-p', type=long, help='one factor of modulus')
+    group3.add_argument('-q', type=long, help='one factor of modulus')
+
+    # group4用于指定一特殊方法中所需要的额外参数
+    group4 = parser.add_argument_group(
+        title='extra variables', description='Used in some special methods')
+    group4.add_argument('--KHBFA', type=long,
                         help='use Known High Bits Factor Attack, this specify the High Bits of factor', default=None)
-    parser.add_argument('--pbits', type=long,
+    group4.add_argument('--pbits', type=long,
                         help='customize the bits lenth of factor, default is half of n`s bits lenth', default=None)
 
     parser.add_argument(
-        '--verbose', help='print details', action='store_true')
-    parser.add_argument(
-        '-o', "--output", help='Specify the output file in --createpub mode.')
-
+        '-v', '--verbose', help='print details', action='store_true')
     args = parser.parse_args()
 
     # if createpub mode generate public key then quit

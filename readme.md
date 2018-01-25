@@ -60,15 +60,15 @@ pip install -r "requirements.txt"
 
 - 输入N与e创建公钥
 
-`python solve.py  --createpub  -N your_modulus -e your_public_exponent -o public.pem`
+`python solve.py -g --createpub  -N your_modulus -e your_public_exponent -o public.pem`
 
 - 查看密钥文件
 
-`python solve.py --dumpkey --key examples/smallfraction.pub`
+`python solve.py -g --dumpkey --key examples/smallfraction.pub`
 
 - 将加密文件转为十进制（方便写入文本，配合`-i`需要）
 
-`python solve.py --enc2dec examples/jarvis_oj_hardRSA/flag.enc`
+`python solve.py -g --enc2dec examples/jarvis_oj_hardRSA/flag.enc`
 
 # Examples
 
