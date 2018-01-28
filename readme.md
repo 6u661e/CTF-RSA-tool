@@ -6,8 +6,6 @@
 
 ~~不懂RSA的小白说(hai)不(shi)定(yao)也(hao)能(hao)拿(xue)一(xi)血(a)。~~
 
-[一张图搞定CTF中的RSA题型](http://naotu.baidu.com/file/503f1eaee72ef304ce687fcbdb1913c6?token=13e96060bd0e02fb)
-
 # Requirements
 
 - requests
@@ -28,11 +26,9 @@ python setup.py install
 
 - 安装gmpy2，参考：
 
-https://www.cnblogs.com/pcat/p/5746821.html
+参考原文：https://www.cnblogs.com/pcat/p/5746821.html
 
-> 原文里面安装MPFR的地址404了，需要去官网获取最新的，安装失败的可以参考我的博客
-
-https://d001um3.github.io/2018/01/24/CTF-RSA-tool-install/
+原文里面有的版本过老，会安装失败，可以参考我的安装过程：https://d001um3.github.io/2018/01/24/CTF-RSA-tool-install/
 
 - 克隆仓库，安装依赖
 
@@ -44,11 +40,11 @@ pip install -r "requirements.txt"
 
 - 安装sagemath
 
-> 安装sagemath的以获得更高的成功率，建议安一个，嫌麻烦也可以不安装
+> 安装sagemath的以支持更多的算法，提高解题成功率，嫌麻烦也可以不安装
 
 官网：http://www.sagemath.org
 
-不会安装的可以看我博客：https://d001um3.github.io/2017/12/06/sage/
+我的安装过程：https://d001um3.github.io/2017/12/06/sage/
 
 # Usage
 
