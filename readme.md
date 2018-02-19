@@ -2,9 +2,7 @@
 
 # Description
 
-**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，可以助CTFer们在CTF比赛中快速解决RSA相关的 **基本题型** 。
-
-~~不懂RSA的小白说(hai)不(shi)定(yao)也(hao)能(hao)拿(xue)一(xi)血(a)。~~
+**CTF-RSA-tool** 是一款基于`python`以及`sage`的小工具，助不熟悉RSA的CTFer在CTF比赛中快速解决RSA相关的 **基本题型** 。
 
 # Requirements
 
@@ -28,7 +26,7 @@ python setup.py install
 
 参考原文：https://www.cnblogs.com/pcat/p/5746821.html
 
-原文里面有的版本过老，会安装失败，可以参考我的安装过程：https://d001um3.github.io/2018/01/24/CTF-RSA-tool-install/
+原文里面有的版本过老，可能导致安装失败，我的安装过程：https://d001um3.github.io/2018/01/24/CTF-RSA-tool-install/
 
 - 克隆仓库，安装依赖
 
@@ -69,10 +67,6 @@ pip install -r "requirements.txt"
 # Examples
 
 > 非 --input（文本文档自动识别攻击） 的情况下，请至少选择 --private（打印得到的私钥） 或 --decrypt（解密一个加密的文件） 或 --decrypt_int（解密一个十进制数） 中的一个，不然程序不会干什么事
-
-### 只需要一组密钥的
-
-> 我这里‘组’的意思是有几个模数N或指数e等
 
 - Wiener's attack
 
@@ -118,9 +112,6 @@ pip install -r "requirements.txt"
 
 `python solve.py --verbose --private -i examples/KnownHighBitsFactorAttack.txt`
 
-
-### 需要多组密钥的
-
 - d泄漏攻击
 
 `python solve.py --verbose --private -i examples/d_leak.txt`
@@ -159,7 +150,7 @@ CTFer可以通过命令行选择是输出私钥还是输出解密后的密文，
 
 ### 已实现的攻击方法
 
-主要参考[ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)和[RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)
+主要参考[ctf-wiki](https://ctf-wiki.github.io/ctf-wiki/crypto/asymmetric/rsa/rsa_index.html)和[RsaCtfTool](https://github.com/Ganapati/RsaCtfTool)及自己平时遇见的一些题型
 
 - 大整数分解
   - 检查过去的ctf比赛中出现的素数
