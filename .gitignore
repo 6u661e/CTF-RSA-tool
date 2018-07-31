@@ -2,4 +2,5 @@ CTF-RSA-tool.png
 CTF-RSA-tool.sketch
 readme.pdf
 *.pyc
+*.pyo
 .DS_Store

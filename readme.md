@@ -26,12 +26,12 @@ python setup.py install
 
 参考原文：https://www.cnblogs.com/pcat/p/5746821.html
 
-原文里面有的版本过老，可能导致安装失败，我的安装过程：https://d001um3.github.io/2018/01/24/CTF-RSA-tool-install/
+原文里面有的版本过老，可能导致安装失败，我的安装过程：https://3summer.github.io/2018/01/24/CTF-RSA-tool-install/
 
 - 克隆仓库，安装依赖
 
 ```
-git clone https://github.com/D001UM3/CTF-RSA-tool.git
+git clone https://github.com/3summer/CTF-RSA-tool.git
 cd CTF-RSA-tool
 pip install -r "requirements.txt"
 ```
@@ -42,7 +42,7 @@ pip install -r "requirements.txt"
 
 官网：http://www.sagemath.org
 
-我的安装过程：https://d001um3.github.io/2017/12/06/sage/
+我的安装过程：https://3summer.github.io/2017/12/06/sage/
 
 # Usage
 
