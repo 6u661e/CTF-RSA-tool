@@ -5,6 +5,7 @@ import gmpy2
 from functools import reduce
 import libnum
 import subprocess
+import os
 import logging
 logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
 log = logging.getLogger()
@@ -112,10 +113,10 @@ class RSAAttack(object):
                 return
             if self.pbits:
                 sageresult = int(subprocess.check_output(
-                    ['sage', 'lib/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
+                    ['sage', os.path.dirname(__file__)+ '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
             else:
                 sageresult = int(subprocess.check_output(
-                    ['sage', 'lib/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop)]))
+                    ['sage', os.path.dirname(__file__)+ '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop)]))
             if sageresult > 0:
                 self.p = sageresult
                 self.q = self.n / self.p
