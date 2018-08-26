@@ -100,7 +100,8 @@ class RSAAttack(object):
                 return
 
         # 判断是否为小公钥指数攻击
-        if self.e > 2 and self.e <= 11 and self.c is not None:
+        # if self.e > 2 and self.e <= 11 and self.c is not None:
+        if self.e > 2 and self.e <= 10 and self.c is not None:
             hastads(self.n, self.e, self.c)
             return
 
@@ -148,6 +149,7 @@ class RSAAttack(object):
 
         # --private 是否需要打印私钥
         if self.args.private:
+            log.info('\np=%d\nq=%d\nd=%d\n' % (self.p, self.q, self.d))
             log.info('private key:\n' + RSA.construct((long(self.n), long(self.e),
                                                        long(self.d), long(self.p), long(self.q))).exportKey())
 

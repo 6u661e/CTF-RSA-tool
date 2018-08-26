@@ -6,6 +6,7 @@ import subprocess
 import libnum
 import RSAutils
 import signal
+import os
 
 
 log = RSAutils.log
@@ -91,7 +92,7 @@ def noveltyprimes(N):
 
 def pastctfprimes(N):
     log.debug('factor N: try past ctf primes')
-    primes = [long(x) for x in open('lib/pastctfprimes.txt', 'r').readlines(
+    primes = [long(x) for x in open(os.path.dirname(__file__)+ '/pastctfprimes.txt', 'r').readlines(
     ) if not x.startswith('#') and not x.startswith('\n')]
     for prime in primes:
         if N % prime == 0:
@@ -107,7 +108,7 @@ def boneh_durfee(N, e):
     # many of these problems will be solved by the wiener attack module but perhaps some will fall through to here
     # TODO: get an example public key solvable by boneh_durfee but not wiener
     sageresult = int(subprocess.check_output(
-        ['sage', 'lib/boneh_durfee.sage', str(N), str(e)]))
+        ['sage', os.path.dirname(__file__)+ '/boneh_durfee.sage', str(N), str(e)]))
     if sageresult > 0:
         # use PyCrypto _slowmath rsa_construct to resolve p and q from d
         from Crypto.PublicKey import _slowmath
@@ -124,7 +125,7 @@ def smallfraction(N):
     # Code/idea from Renaud Lifchitz's talk 15 ways to break RSA security @ OPCDE17
     # only works if the sageworks() function returned True
     sageresult = int(subprocess.check_output(
-        ['sage', 'lib/smallfraction.sage', str(N)]))
+        ['sage', os.path.dirname(__file__)+ '/smallfraction.sage', str(N)]))
     if sageresult > 0:
         p = sageresult
         q = N / p

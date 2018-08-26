@@ -24,9 +24,9 @@ python setup.py install
 
 - 安装gmpy2，参考：
 
-参考原文：https://www.cnblogs.com/pcat/p/5746821.html
+`easy_install gmpy2`
 
-原文里面有的版本过老，可能导致安装失败，我的安装过程：https://3summer.github.io/2018/01/24/CTF-RSA-tool-install/
+如果不行，可以尝试我的安装过程：https://3summer.github.io/2018/01/24/CTF-RSA-tool-install/
 
 - 克隆仓库，安装依赖
 
@@ -36,7 +36,7 @@ cd CTF-RSA-tool
 pip install -r "requirements.txt"
 ```
 
-- 安装sagemath
+- 安装sagemath（非必须）
 
 > 安装sagemath的以支持更多的算法，提高解题成功率，嫌麻烦也可以不安装
 
@@ -66,67 +66,26 @@ pip install -r "requirements.txt"
 
 # Examples
 
-> 非 --input（文本文档自动识别攻击） 的情况下，请至少选择 --private（打印得到的私钥） 或 --decrypt（解密一个加密的文件） 或 --decrypt_int（解密一个十进制数） 中的一个，不然程序不会干什么事
+> 非 --input（文本文档自动识别攻击） 的情况下，请至少选择 --private（打印得到的私钥） 或 --decrypt（解密一个加密的文件） 或 --decrypt_int（解密一个十进制数） 中的一个，不然程序不会干什么事，具体参考example.txt
 
-- Wiener's attack
+大多数情况下，只用使用 `python solve.py -i rsa.txt` 指定一个txt文本，txt的内容为你从题目获取的变量，如
 
-`python solve.py --verbose --private -i examples/wiener_attack.txt`
+```
+n = **********
+e = **********
+c = **********
+```
 
->或者通过命令行，只要指定对应参数就行了
+用`-i`指定这个文本文档就行了，这样就不用用命令行去一个个指定参数，弄的终端看着很乱。
+这个txt的编写规范参看`examples/input_example.txt`
 
-`python solve.py  --verbose --private -N 460657813884289609896372056585544172485318117026246263899744329237492701820627219556007788200590119136173895989001382151536006853823326382892363143604314518686388786002989248800814861248595075326277099645338694977097459168530898776007293695728101976069423971696524237755227187061418202849911479124793990722597 -e 354611102441307572056572181827925899198345350228753730931089393275463916544456626894245415096107834465778409532373187125318554614722599301791528916212839368121066035541008808261534500586023652767712271625785204280964688004680328300124849680477105302519377370092578107827116821391826210972320377614967547827619`
+# Tips
 
-- 利用 factordb.com 分解大整数
+每次使用都要找到项目目录很麻烦，可以做个符号链接，链接solve.py到bin目录下，如在我的MACos中
 
-`python solve.py --verbose  -k examples/jarvis_oj_mediumRSA/pubkey.pem --decrypt examples/jarvis_oj_mediumRSA/flag.enc`
+`ln -s /Users/3summer/Documents/code/CTF-RSA-tool/solve.py /usr/local/bin/rsa_solve`
 
-- Boneh and Durfee attack
-
-> TODO: get an example public key solvable by boneh_durfee but not wiener
-
-- small q attack
-
-`python solve.py --verbose --private -k examples/small_q.pub`
-
-- 费马分解（p&q相近时）
-
-`python solve.py --verbose --private -i examples/closed_p_q.txt`
-
-- Common factor between ciphertext and modulus attack（密文与模数不互素）
-
-`python solve.py --verbose -k examples/common_factor.pub --decrypt examples/common_factor.cipher --private`
-
-- small e
-
-`python solve.py --verbose -k examples/small_exponent.pub  --decrypt examples/small_exponent.cipher`
-
-- Rabin 算法 （e == 2）
-
-`python solve.py --verbose -k examples/jarvis_oj_hardRSA/pubkey.pem --decrypt examples/jarvis_oj_hardRSA/flag.enc`
-
-- Small fractions method when p/q is close to a small fraction
-
-`python solve.py --verbose -k examples/smallfraction.pub  --private`
-
-- Known High Bits Factor Attack
-
-`python solve.py --verbose --private -i examples/KnownHighBitsFactorAttack.txt`
-
-- d泄漏攻击
-
-`python solve.py --verbose --private -i examples/d_leak.txt`
-
-- 模不互素
-
-`python solve.py --verbose --private -i examples/share_factor.txt`
-
-- 共模攻击
-
-`python solve.py --verbose --private -i examples/share_N.txt`
-
-- Basic Broadcast Attack
-
-`python solve.py --verbose --private -i examples/Basic_Broadcast_Attack.txt`
+之后，就能直接在终端输入`rsa_solve -i rsa.txt`去快速秒简单题了
 
 # How does it work
 
