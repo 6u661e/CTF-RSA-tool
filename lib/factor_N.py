@@ -93,7 +93,7 @@ def noveltyprimes(N):
 def pastctfprimes(N):
     log.debug('factor N: try past ctf primes')
     primes = [long(x) for x in open(os.path.dirname(__file__)+ '/pastctfprimes.txt', 'r').readlines(
-    ) if not x.startswith('#') and not x.startswith('\n')]
+    ) if not x.startswith('#') and not x.startswith('\n') and not x.startswith('\r\n')]
     for prime in primes:
         if N % prime == 0:
             q = prime
