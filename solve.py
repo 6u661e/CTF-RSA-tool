@@ -1,10 +1,9 @@
 #!/usr/local/bin/python
-# coding:utf-8
+# -*- coding: utf-8 -*-
 import argparse
 from Crypto.PublicKey import RSA
 import subprocess
 import lib.RSAutils
-import libnum
 
 split_char_dic = ['=', ':', 'is']
 
@@ -37,7 +36,7 @@ def input_file(path):
                 continue
             key = k.split(split_char)[0].strip().lower()
             value = k.split(split_char)[1].strip()
-            value = long(int(value, 16)) if '0x' in value else long(int(value))
+            value = int(int(value, 16)) if '0x' in value else int(int(value))
             if key in data and value != data[key]:
                 if isinstance(data[key], list):
                     data[key].append(value)
@@ -59,9 +58,9 @@ if __name__ == "__main__":
     group1.add_argument(
         '--decrypt', help='decrypt a file, usually like "flag.enc"', default=None)
     group1.add_argument(
-        '-c', '--decrypt_int', type=long, help='decrypt a long int num', default=None)
+        '-c', '--decrypt_int', type=int, help='decrypt a int num', default=None)
     group1.add_argument(
-        '--private', help='Print private key if recovered', action='store_true')
+        '-z','--private', help='Print private key if recovered', action='store_true')
     group1.add_argument(
         '-i', '--input', help='input a file with all necessary parameters (see examples/input_example.txt)')
     group1.add_argument(
@@ -83,18 +82,18 @@ if __name__ == "__main__":
         title='the RSA variables', description='Specify the variables whatever you got')
     group3.add_argument(
         '-k', '--key', help='pem file, usually like ".pub" or ".pem", and it begins with "-----BEGIN"')
-    group3.add_argument('-N', type=long, help='the modulus')
-    group3.add_argument('-e', type=long, help='the public exponent')
-    group3.add_argument('-d', type=long, help='the private exponent')
-    group3.add_argument('-p', type=long, help='one factor of modulus')
-    group3.add_argument('-q', type=long, help='one factor of modulus')
+    group3.add_argument('-N', type=int, help='the modulus')
+    group3.add_argument('-e', type=int, help='the public exponent')
+    group3.add_argument('-d', type=int, help='the private exponent')
+    group3.add_argument('-p', type=int, help='one factor of modulus')
+    group3.add_argument('-q', type=int, help='one factor of modulus')
 
     # group4用于指定一特殊方法中所需要的额外参数
     group4 = parser.add_argument_group(
         title='extra variables', description='Used in some special methods')
-    group4.add_argument('--KHBFA', type=long,
+    group4.add_argument('--KHBFA', type=int,
                         help='use Known High Bits Factor Attack, this specify the High Bits of factor', default=None)
-    group4.add_argument('--pbits', type=long,
+    group4.add_argument('--pbits', type=int,
                         help='customize the bits lenth of factor, default is half of n`s bits lenth', default=None)
 
     parser.add_argument(
@@ -110,9 +109,9 @@ if __name__ == "__main__":
             with open(args.output, 'w') as file:
                 file.write(RSA.construct(
                     (args.N, args.e)).publickey().exportKey())
-            print 'saved in %s' % args.output
+            print('saved in %s' % args.output)
         else:
-            print RSA.construct((args.N, args.e)).publickey().exportKey()
+            print(RSA.construct((args.N, args.e)).publickey().exportKey())
         quit()
 
     # if dumpkey mode dump the key components then quit
@@ -123,18 +122,18 @@ if __name__ == "__main__":
 
         key_data = open(args.key, 'rb').read()
         key = RSA.importKey(key_data)
-        print "[*] n: " + str(key.n)
-        print "[*] e: " + str(key.e)
+        print("[*] n: " + str(key.n))
+        print("[*] e: " + str(key.e))
         if key.has_private():
-            print "[*] d: " + str(key.d)
-            print "[*] p: " + str(key.p)
-            print "[*] q: " + str(key.q)
+            print("[*] d: " + str(key.d))
+            print("[*] p: " + str(key.p))
+            print("[*] q: " + str(key.q))
         quit()
 
     # if enc2dec mode print cipher in dec then quit
     if args.enc2dec:
-        enc_data = open(args.enc2dec, 'r').read()
-        print "[*] c : " + str(libnum.s2n(enc_data))
+        enc_data = open(args.enc2dec, 'rb').read()
+        print("[*] c : %s" % int().from_bytes(enc_data, byteorder='little', signed=True))
         quit()
 
     if sageworks():

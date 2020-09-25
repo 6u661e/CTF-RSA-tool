@@ -204,7 +204,7 @@ def boneh_durfee(pol, modulus, mm, tt, XX, YY):
         # print "Try with highers m and t."
         if debug:
             diff = (log(det) - log(bound)) / log(_sage_const_2 )
-            print "size det(L) - size e^(m*n) = ", floor(diff)
+            print("size det(L) - size e^(m*n) = ", floor(diff))
         if strict:
             return -_sage_const_1 , -_sage_const_1 
     # else:
@@ -283,16 +283,16 @@ def main(N,e):
 
     # Checking bounds
     if debug:
-        print "=== checking values ==="
-        print "* delta:", delta
-        print "* delta < 0.292", delta < _sage_const_0p292 
-        print "* size of e:", int(log(e)/log(_sage_const_2 ))
-        print "* size of N:", int(log(N)/log(_sage_const_2 ))
-        print "* m:", m, ", t:", t
+        print("=== checking values ===")
+        print("* delta:", delta)
+        print("* delta < 0.292", delta < _sage_const_0p292 )
+        print("* size of e:", int(log(e)/log(_sage_const_2 )))
+        print("* size of N:", int(log(N)/log(_sage_const_2 )))
+        print("* m:", m, ", t:", t)
 
     # boneh_durfee
     if debug:
-        print "=== running algorithm ==="
+        print("=== running algorithm ===")
         start_time = time.time()
 
     solx, soly = boneh_durfee(pol, e, m, t, X, Y)
@@ -300,13 +300,13 @@ def main(N,e):
     if solx > _sage_const_0 :
         # print "=== solutions found ==="
         if debug:
-            print "x:", solx
-            print "y:", soly
+            print("x:", solx)
+            print("y:", soly)
 
         d = int(pol(solx, soly) / e)
-        print d
+        print(d)
     else:
-        print _sage_const_0 
+        print(_sage_const_0)
 
     if debug:
         print("=== %s seconds ===" % (time.time() - start_time))

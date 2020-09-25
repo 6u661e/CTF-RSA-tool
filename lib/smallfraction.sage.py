@@ -28,11 +28,11 @@ try:
           if len(sr)>_sage_const_0 :
             p = int(phint - sr[_sage_const_0 ])
             if n%p==_sage_const_0 :
-              print p
+              print(p)
               break
     if p == _sage_const_0 :
-        print p
+        print(p)
 except:
-    print _sage_const_0 
+    print(_sage_const_0 )
     pass
 

@@ -14,10 +14,10 @@ python solve.py --verbose  -k examples/jarvis_oj_mediumRSA/pubkey.pem --decrypt 
 python solve.py --verbose --private -k examples/small_q.pub
 
 # 2017强网杯线上赛 RSA 费马分解（p&q相近时）
-python solve.py --verbose --private -i examples/closed_p_q.txt
+python solve.py --verbose -i examples/closed_p_q.txt
 
 # Common factor between ciphertext and modulus attack
-python solve.py --verbose -k examples/common_factor.pub --decrypt examples/common_factor.cipher --private
+python solve.py --verbose -k examples/common_factor.pub --decrypt examples/common_factor.cipher
 
 # small e
 python solve.py --verbose -k examples/small_exponent.pub  --decrypt examples/small_exponent.cipher
@@ -29,18 +29,18 @@ python solve.py --verbose -k examples/jarvis_oj_hardRSA/pubkey.pem --decrypt exa
 python solve.py --verbose -k examples/smallfraction.pub  --private
 
 # Known High Bits Factor Attack
-python solve.py --verbose --private -i examples/KnownHighBitsFactorAttack.txt
+python solve.py --verbose -i examples/KnownHighBitsFactorAttack.txt
 
 
 # 需要多组密钥的
 # 第三届上海市大学生网络安全大赛--rrrsa d泄漏攻击 
-python solve.py --verbose --private -i examples/d_leak.txt
+python solve.py --verbose -i examples/d_leak.txt
 
 # 模不互素
-python solve.py --verbose --private -i examples/share_factor.txt
+python solve.py --verbose -i examples/share_factor.txt
 
 # 共模攻击
-python solve.py --verbose --private -i examples/share_N.txt
+python solve.py --verbose -i examples/share_N.txt
 
 # Basic Broadcast Attack
-python solve.py --verbose --private -i examples/Basic_Broadcast_Attack.txt
+python solve.py --verbose -i examples/Basic_Broadcast_Attack.txt

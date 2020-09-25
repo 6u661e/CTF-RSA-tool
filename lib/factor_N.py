@@ -1,10 +1,10 @@
-# coding:utf-8
+# -*- coding: utf-8 -*-
 import requests
 import re
 from Crypto.PublicKey import _slowmath
 import subprocess
 import libnum
-import RSAutils
+from . import RSAutils
 import signal
 import os
 
@@ -50,7 +50,8 @@ def factordb(N):
             eq = map(int, [k, j, sub])
             return pow(eq[0], eq[1]) - eq[2]
         except Exception as e:
-            log.debug("FactorDB gave something we couldn't parse sorry (%s). Got error: %s" % (equation, e))
+            log.debug("FactorDB gave something we couldn't parse sorry (%s). Got error: %s" % (
+                equation, e))
             raise FactorizationError()
 
     # Factors available online?
@@ -83,7 +84,7 @@ def noveltyprimes(N):
     # not all numbers in this form are prime but some are (25 digit is prime)
     maxlen = 25  # max number of digits in the final integer
     for i in range(maxlen - 4):
-        prime = long("3133" + ("3" * i) + "7")
+        prime = int("3133" + ("3" * i) + "7")
         if N % prime == 0:
             q = prime
             p = N / q
@@ -92,8 +93,8 @@ def noveltyprimes(N):
 
 def pastctfprimes(N):
     log.debug('factor N: try past ctf primes')
-    primes = [long(x) for x in open(os.path.dirname(__file__)+ '/pastctfprimes.txt', 'r').readlines(
-    ) if not x.startswith('#') and not x.startswith('\n')]
+    primes = [int(x) for x in open(os.path.dirname(__file__) + '/pastctfprimes.txt', 'r').readlines(
+    ) if not x.startswith('#') and not x.startswith('\n') and not x.startswith('\r\n')]
     for prime in primes:
         if N % prime == 0:
             q = prime
@@ -108,12 +109,12 @@ def boneh_durfee(N, e):
     # many of these problems will be solved by the wiener attack module but perhaps some will fall through to here
     # TODO: get an example public key solvable by boneh_durfee but not wiener
     sageresult = int(subprocess.check_output(
-        ['sage', os.path.dirname(__file__)+ '/boneh_durfee.sage', str(N), str(e)]))
+        ['sage', os.path.dirname(__file__) + '/boneh_durfee.sage', str(N), str(e)]))
     if sageresult > 0:
         # use PyCrypto _slowmath rsa_construct to resolve p and q from d
         from Crypto.PublicKey import _slowmath
         tmp_priv = _slowmath.rsa_construct(
-            long(N), long(e), d=long(sageresult))
+            int(N), int(e), d=int(sageresult))
         p = tmp_priv.p
         q = tmp_priv.q
         # d = sageresult
@@ -121,11 +122,12 @@ def boneh_durfee(N, e):
 
 
 def smallfraction(N):
-    log.debug('factor N: try Small fractions method when p/q is close to a small fraction')
+    log.debug(
+        'factor N: try Small fractions method when p/q is close to a small fraction')
     # Code/idea from Renaud Lifchitz's talk 15 ways to break RSA security @ OPCDE17
     # only works if the sageworks() function returned True
     sageresult = int(subprocess.check_output(
-        ['sage', os.path.dirname(__file__)+ '/smallfraction.sage', str(N)]))
+        ['sage', os.path.dirname(__file__) + '/smallfraction.sage', str(N)]))
     if sageresult > 0:
         p = sageresult
         q = N / p
@@ -288,7 +290,7 @@ def wiener_attack(n, e):
 
 
 def nde_2_pq(n, d, e):
-    tmp_priv = _slowmath.rsa_construct(long(n), long(e), d=long(d))
+    tmp_priv = _slowmath.rsa_construct(int(n), int(e), d=int(d))
     p = tmp_priv.p
     q = tmp_priv.q
     return p, q

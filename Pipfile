@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+certifi = "==2020.6.20"
+chardet = "==3.0.4"
+gmpy2 = "==2.0.8"
+idna = "==2.10"
+libnum = "==1.6.0"
+pycrypto = "==2.6.1"
+requests = "==2.24.0"
+urllib3 = "==1.25.10"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

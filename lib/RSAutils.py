@@ -1,6 +1,7 @@
-# coding:utf-8
+# -*- coding: utf-8 -*-
 from Crypto.PublicKey import RSA
 from Crypto.PublicKey import _slowmath
+from Crypto.Util.number import long_to_bytes
 import gmpy2
 from functools import reduce
 import libnum
@@ -10,8 +11,8 @@ import logging
 logging.basicConfig(format='\033[92m%(levelname)s\033[0m: %(message)s')
 log = logging.getLogger()
 log.setLevel(logging.INFO)
-import factor_N
 
+from . import factor_N
 
 class RSAAttack(object):
     def __init__(self, args):
@@ -30,8 +31,8 @@ class RSAAttack(object):
         self.data = args.data or None
         # 是否需要解密密文
         if self.args.decrypt:
-            with open(self.args.decrypt, 'r') as f:
-                self.c = libnum.s2n(f.read().strip())
+            with open(self.args.decrypt, 'rb') as f:
+                self.c = int().from_bytes(f.read(), byteorder='big', signed=True)
         elif self.args.decrypt_int:
             self.c = self.args.decrypt_int
         else:
@@ -48,17 +49,17 @@ class RSAAttack(object):
                 self.e = self.data['e'][1]
             else:
                 # 模不互素
-                if isinstance(self.data['n'], list) and isinstance(self.data['e'], long) and isinstance(self.data['c'], long):
+                if isinstance(self.data['n'], list) and isinstance(self.data['e'], int) and isinstance(self.data['c'], int):
                     share_factor(
                         self.data['n'][0], self.data['n'][1], self.data['e'], self.data['c'])
                     return
                 # 共模攻击
-                if isinstance(self.data['n'], long) and isinstance(self.data['e'], list) and isinstance(self.data['c'], list):
+                if isinstance(self.data['n'], int) and isinstance(self.data['e'], list) and isinstance(self.data['c'], list):
                     share_N(self.data['n'], self.data['e'][0], self.data['e']
                             [1], self.data['c'][0], self.data['c'][1])
                     return
                 # Basic Broadcast Attack
-                if isinstance(self.data['n'], list) and isinstance(self.data['e'], long) and isinstance(self.data['c'], list):
+                if isinstance(self.data['n'], list) and isinstance(self.data['e'], int) and isinstance(self.data['c'], list):
                     Basic_Broadcast_Attack(self.data)
                     return
 
@@ -83,7 +84,7 @@ class RSAAttack(object):
                     self.data['pbits'] if 'pbits' in self.data else None)
             except Exception as e:
                 log.error('please check your --input')
-                print e
+                print(e)
                 return
         else:
             # 通过命令行参数读取，得到N与e，没有的话抛出异常
@@ -113,21 +114,26 @@ class RSAAttack(object):
                 return
             if self.pbits:
                 sageresult = int(subprocess.check_output(
-                    ['sage', os.path.dirname(__file__)+ '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
+                    ['sage', os.path.dirname(__file__) + '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop), str(self.pbits)]))
             else:
                 sageresult = int(subprocess.check_output(
-                    ['sage', os.path.dirname(__file__)+ '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop)]))
+                    ['sage', os.path.dirname(__file__) + '/KnownHighBitsFactorAttack.sage', str(self.n), str(self.hbop)]))
             if sageresult > 0:
                 self.p = sageresult
-                self.q = self.n / self.p
+                self.q = self.n // self.p
                 self.d = libnum.invmod(self.e, (self.p - 1) * (self.q - 1))
 
         # 如果没有提供d
         if not self.d:
             # 分解大整数n
             factors = factor_N.solve(self.n, self.e, self.c, self.sageworks)
+            
             if factors:
+                log.debug("factors N p:%d q:%d",factors[0],factors[1])
                 self.p, self.q = factors
+            else:
+                log.error("factors N failed")
+            
 
             # 判断是否为RABIN算法
             if self.e == 2:
@@ -151,15 +157,15 @@ class RSAAttack(object):
         # --private 是否需要打印私钥
         if self.args.private:
             log.info('\np=%d\nq=%d\nd=%d\n' % (self.p, self.q, self.d))
-            log.info('private key:\n' + RSA.construct((long(self.n), long(self.e),
-                                                       long(self.d), long(self.p), long(self.q))).exportKey())
+            log.info('private key:\n%s' % RSA.construct((int(self.n), int(self.e),
+                                                         int(self.d), int(self.p), int(self.q))).exportKey())
 
         # 不需要解密，直接返回
         if not self.c:
             return
         self.plain = pow(self.c, self.d, self.n)
         # 打印解密出来的明文
-        log.info(libnum.n2s(self.plain))
+        log.info(long_to_bytes(self.plain))
 
 
 # d泄露攻击，根据过期的(N，e1，d1)，和一个新的e2，返回d2
@@ -169,7 +175,7 @@ def d_leak(N, e1, d1, e2):
 
 
 def nde_2_pq(N, d, e):
-    tmp_priv = _slowmath.rsa_construct(long(N), long(e), d=long(d))
+    tmp_priv = _slowmath.rsa_construct(int(N), int(e), d=int(d))
     p = tmp_priv.p
     q = tmp_priv.q
     return p, q
@@ -178,13 +184,10 @@ def nde_2_pq(N, d, e):
 # 模不互素: 需要（n1，e1，c1）及（n2，e2），且e1 == e2。解密c1
 def share_factor(n1, n2, e, c1):
     p1 = gmpy2.gcd(n1, n2)
-    q1 = n1 / p1
-    d = gmpy2.invert(e, (p1 - 1) * (q1 - 1))
+    q1 = n1 // p1
+    d = gmpy2.invert(gmpy2.mpz(e), gmpy2.mpz((p1 - 1) * (q1 - 1)))
     plain = gmpy2.powmod(c1, d, n1)
-    plain = hex(plain)[2:]
-    if len(plain) % 2 != 0:
-        plain = '0' + plain
-    log.info('Here are your plain text: \n' + plain.decode('hex'))
+    log.info('Here are your plain text: \n%s' % long_to_bytes(plain))
 
 
 # 共模攻击: 需要（n1，e1，c1）及（n2，e2, c2），且n1 == n2 and gcd(e1,e2) == 1。
@@ -197,27 +200,22 @@ def share_N(N, e1, e2, c1, c2):
         t = -t
         c2 = gmpy2.invert(c2, N)
     plain = gmpy2.powmod(c1, s, N) * gmpy2.powmod(c2, t, N) % N
-    log.info('Here are your plain text: \n' + libnum.n2s(plain))
+    log.info('Here are your plain text: \n%s' % long_to_bytes(plain))
 
 
 # e=2，rabin算法
 def rabin(N, c, p, q):
-    inv_p = libnum.invmod(p, q)
-    inv_q = libnum.invmod(q, p)
+    xp = gmpy2.powmod(c, (p+1)//4, p)
+    xq = gmpy2.powmod(c, (q+1)//4, q)
 
-    mp = pow(c, (p + 1) / 4, p)
-    mq = pow(c, (q + 1) / 4, q)
-
-    a = (inv_p * p * mq + inv_q * q * mp) % N
-    b = N - int(a)
-    c = (inv_p * p * mq - inv_q * q * mp) % N
-    d = N - int(c)
-
-    for i in (a, b, c, d):
-        s = '%x' % i
-        if len(s) % 2 != 0:
-            s = '0' + s
-        log.info('Here are your plain text: \n' + s.decode('hex'))
+    inv_q = gmpy2.invert(q, p)
+    inv_p = gmpy2.invert(p, q)
+    c1 = xp*q*inv_q
+    c2 = xq*p*inv_p
+    m = long_to_bytes(gmpy2.f_mod(c1+c2, N)) + long_to_bytes(gmpy2.f_mod(c1-c2, N)) + \
+        long_to_bytes(gmpy2.f_mod(c2-c1, N)) + \
+        long_to_bytes(gmpy2.f_mod(0-c1-c2, N))
+    log.info('Here are your plain text: \n%s' % m)
 
 
 # Hastad attack for low public exponent, this has found success for e = 3, and e = 5 previously
@@ -228,7 +226,7 @@ def hastads(N, e, c):
     while True:
         if gmpy2.iroot(c + n * N, e)[1]:
             log.info('Here are your plain text: \n' +
-                     libnum.n2s(gmpy2.iroot(c + n * N, e)[0]))
+                     long_to_bytes(gmpy2.iroot(c + n * N, e)[0]))
             return
         n += 1
 
@@ -250,7 +248,7 @@ def Basic_Broadcast_Attack(data):
     if data['e'] == len(data['n']) == len(data['c']):
         t_to_e = chinese_remainder(data['n'], data['c'])
         t = int(gmpy2.iroot(t_to_e, data['e'])[0])
-        log.info('Here are your plain text: \n' + libnum.n2s(t))
+        log.info('Here are your plain text: \n%s' % long_to_bytes(t))
     else:
         log.error('wrong json file, check examples')
 

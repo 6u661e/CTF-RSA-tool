@@ -14,5 +14,5 @@ PR = PolynomialRing(Zmod(n), names=('x',)); (x,) = PR._first_ngens(1)
 f = x + p4
 x0 = f.small_roots(X=_sage_const_2 **kbits, beta=_sage_const_0p4 )[_sage_const_0 ]
 p = p4+x0
-print int(p)
+print(int(p))
 
