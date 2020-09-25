@@ -1,4 +1,4 @@
-![]forked from 3summer/CTF-RSA-tool , make it run normally in python3
+![](forked from 3summer/CTF-RSA-tool , make it run normally in python3)
 ![](http://oztni9daw.bkt.clouddn.com/e5271927dfd0beac56760e0dcdf81116.png)
 
 # Description
@@ -14,21 +14,6 @@
 - sagemath(optional)
 
 # Installation
-
-- 安装libnum
-
-```
-git clone https://github.com/hellman/libnum.git
-cd libnum
-python setup.py install
-```
-
-- 安装gmpy2，参考：
-
-`easy_install gmpy2`
-
-如果不行，可以尝试我的安装过程：https://3summer.github.io/2018/01/24/CTF-RSA-tool-install/
-
 - 克隆仓库，安装依赖
 
 ```
