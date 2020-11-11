@@ -148,7 +148,7 @@ class RSAAttack(object):
 
             # 分解得到p q，或用户输入了p和q，计算d
             if self.p and self.q:
-                self.d = libnum.invmod(self.e, (self.p - 1) * (self.q - 1))
+                self.d = gmpy2.invert(self.e, (self.p - 1) * (self.q - 1))
                 log.debug('d = ' + hex(self.d))
             else:
                 log.error('can not factor N, please offer p and q or d')
